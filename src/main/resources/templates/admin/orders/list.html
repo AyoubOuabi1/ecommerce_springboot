@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/dashboard :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title>Orders - Admin</title>
+    <style id="extracss">
+        .pending-order { background-color: rgba(255, 243, 205, 0.2); }
+        .paid-order { background-color: rgba(209, 231, 221, 0.2); }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Orders</h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="order : ${orders}" th:class="${order.paid ? 'paid-order' : 'pending-order'}">
+                            <td th:text="${'#' + order.id}">1</td>
+                            <td th:text="${order.fullName}">John Doe</td>
+                            <td th:text="${order.email}">john@example.com</td>
+                            <td th:text="${#temporals.format(order.createdAt, 'MMM d, yyyy')}">Mar 15, 2023</td>
+                            <td>
+                                <span th:if="${order.paid}" class="badge bg-success">Paid</span>
+                                <span th:unless="${order.paid}" class="badge bg-warning">Pending</span>
+                            </td>
+                            <td th:text="${order.total != null ? '$' + #numbers.formatDecimal(order.total, 1, 2) : '$' + #numbers.formatDecimal(order.totalPrice, 1, 2)}">$99.99</td>                            <td>
+                                <div class="btn-group" role="group">
+                                    <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <form th:if="${!order.paid}" th:action="@{/admin/orders/{id}/mark-paid(id=${order.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success"
+                                                onclick="return confirm('Mark this order as paid?')">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(orders)}">
+                            <td colspan="7" class="text-center">No orders found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>

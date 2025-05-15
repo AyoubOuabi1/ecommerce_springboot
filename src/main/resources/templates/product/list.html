@@ -1,0 +1,155 @@
+<!-- src/main/resources/templates/products/list.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title th:text="${currentCategory != null ? currentCategory.name : 'Products'}">Products</title>
+    <style id="extracss">
+        .product-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .product-card .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <!-- Hero Section with Search -->
+    <section class="bg-light py-5 mb-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-4 fw-bold">Find Your Perfect Product</h1>
+                    <p class="lead text-muted">Browse our collection of quality products.</p>
+
+                    <!-- Search Bar -->
+                    <form th:action="@{/product}" method="get" class="mt-4">
+                        <div class="input-group input-group-lg">
+                            <input type="text" name="q" class="form-control" placeholder="Search products..."
+                                   th:value="${param.q != null ? param.q : ''}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <img th:src="@{/images/hero_image.png}" alt="Shop Hero" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar Categories -->
+            <div class="col-md-3">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Categories</h4>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a th:href="@{/product}" class="list-group-item list-group-item-action"
+                           th:classappend="${currentCategory == null ? 'active' : ''}">
+                            All Products
+                        </a>
+                        <a th:each="category : ${categories}"
+                           th:href="@{/product/category/{id}(id=${category.id})}"
+                           class="list-group-item list-group-item-action"
+                           th:classappend="${currentCategory != null && currentCategory.id == category.id ? 'active' : ''}">
+                            <span th:text="${category.name}">Category Name</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 th:text="${pageTitle}">All Products</h2>
+                    </h2>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            Sort By
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                            <li><a class="dropdown-item" href="#">Newest</a></li>
+                            <li><a class="dropdown-item" href="#">Price: Low to High</a></li>
+                            <li><a class="dropdown-item" href="#">Price: High to Low</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div th:if="${param.q != null && #lists.isEmpty(products)}" class="alert alert-info">
+                    No products found matching "<span th:text="${param.q}"></span>"
+                </div>
+
+                <div class="row row-cols-1 row-cols-md-3 g-4 mb-4">
+                    <div th:each="product : ${products}" class="col">
+                        <div class="card h-100 product-card">
+                            <div class="position-relative">
+                                <a th:href="@{/product/{slug}(slug=${product.slug})}">
+                                    <img th:if="${product.imageUrl != null}" th:src="${product.imageUrl}" class="card-img-top" th:alt="${product.name}">
+                                    <img th:unless="${product.imageUrl != null}" th:src="@{/images/no_image.png}" class="card-img-top" alt="No image">
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a th:href="@{/product/{slug}(slug=${product.slug})}" class="text-decoration-none text-dark"
+                                       th:text="${#strings.length(product.name) > 50 ? #strings.substring(product.name, 0, 50) + '...' : product.name}">
+                                        Product Name
+                                    </a>
+                                </h5>
+                                <p class="card-text text-muted small"
+                                   th:text="${#strings.length(product.description) > 80 ? #strings.substring(product.description, 0, 80) + '...' : product.description}">
+                                    Product description
+                                </p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between align-items-center bg-white">
+                                <span class="fw-bold text-primary" th:text="${'$' + product.price}">$99.99</span>
+                                <a th:href="@{/product/{slug}(slug=${product.slug})}" class="btn btn-sm btn-outline-primary">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(products)}" class="col-12">
+                        <div class="alert alert-info">No products available</div>
+                    </div>
+                </div>
+
+                <!-- Pagination - this would need to be implemented with Spring Data pagination -->
+                <!-- Simplified for this example -->
+                <nav th:if="${products.size() > 0}" aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>

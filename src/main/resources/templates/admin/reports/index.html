@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/dashboard :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title>Sales Reports - Admin</title>
+    <style id="extracss">
+        .chart-container {
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Sales Reports</h2>
+        <div>
+            <button id="printReport" class="btn btn-secondary">
+                <i class="bi bi-printer"></i> Print Report
+            </button>
+            <button id="exportReport" class="btn btn-primary">
+                <i class="bi bi-download"></i> Export to CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Sales Report Section -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Revenue Trend</h5>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-sm btn-outline-secondary active">Daily</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Weekly</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Monthly</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Sales Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>Total Revenue:</div>
+                        <div><strong th:text="${'$' + #numbers.formatDecimal(totalRevenue, 1, 2)}">$8,245.50</strong></div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>Number of Orders:</div>
+                        <div><strong th:text="${ordersCount}">142</strong></div>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>Average Order Value:</div>
+                        <div>
+                            <strong th:text="${ordersCount > 0 ? '$' + #numbers.formatDecimal(totalRevenue.divide(new java.math.BigDecimal(ordersCount), 2, T(java.math.RoundingMode).HALF_UP), 1, 2) : '$0.00'}">$58.07</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Table -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Recent Orders</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="order : ${recentOrders}" th:if="${recentOrders != null}">
+                        <td th:text="${order.id}">1</td>
+                        <td th:text="${order.fullName}">John Doe</td>
+                        <td th:text="${#temporals.format(order.createdAt, 'yyyy-MM-dd')}">2023-01-01</td>
+                        <td>
+                            <span th:if="${order.paid}" class="badge bg-success">Paid</span>
+                            <span th:unless="${order.paid}" class="badge bg-warning">Pending</span>
+                        </td>
+                        <td th:text="${order.total != null ? '$' + #numbers.formatDecimal(order.total, 1, 2) : '$' + #numbers.formatDecimal(order.getTotalPrice(), 1, 2)}">$149.99</td>
+                    </tr>
+                    <tr th:if="${recentOrders == null || #lists.isEmpty(recentOrders)}">
+                        <td colspan="5" class="text-center">No orders available</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="extrajs">
+    const revenueData = {
+        labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8', 'Day 9', 'Day 10',
+            'Day 11', 'Day 12', 'Day 13', 'Day 14', 'Day 15', 'Day 16', 'Day 17', 'Day 18', 'Day 19', 'Day 20',
+            'Day 21', 'Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28', 'Day 29', 'Day 30'],
+        datasets: [{
+            label: 'Revenue',
+            data: [150, 230, 180, 320, 250, 300, 280, 350, 200, 180,
+                290, 340, 260, 210, 190, 320, 270, 230, 400, 350,
+                290, 220, 370, 280, 310, 240, 280, 330, 270, 390],
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize revenue chart
+        if (document.getElementById('revenueChart')) {
+            const revenueChart = new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: revenueData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Print functionality
+        document.getElementById('printReport').addEventListener('click', function() {
+            window.print();
+        });
+
+        document.getElementById('exportReport').addEventListener('click', function() {
+            // Create CSV content from the table data
+            const table = document.querySelector('.table');
+            if (!table) return;
+
+            // Get headers
+            const headers = Array.from(table.querySelectorAll('thead th'))
+                .map(th => th.textContent.trim());
+
+            // Get rows
+            const rows = Array.from(table.querySelectorAll('tbody tr'))
+                .filter(tr => !tr.querySelector('td[colspan]')) // Skip empty state rows
+                .map(tr => {
+                    return Array.from(tr.querySelectorAll('td'))
+                        .map(td => {
+                            // Clean up text content (remove extra spaces, replace commas)
+                            return '"' + td.textContent.trim().replace(/"/g, '""') + '"';
+                        });
+                });
+
+            let csvContent = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.join(',') + '\n';
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'sales_report_' + formatDate(new Date()) + '.csv');
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+    });
+    // Export functionality
+
+</script>
+</body>
+</html>

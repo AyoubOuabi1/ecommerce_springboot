@@ -1,0 +1,39 @@
+<!-- src/main/resources/templates/admin/categories/form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/dashboard :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title th:text="${category.id != null ? 'Edit Category' : 'Add Category'}">Category Form</title>
+    <style id="extracss"></style>
+</head>
+<body>
+<div id="content">
+    <div class="card">
+        <div class="card-header">
+            <h3 th:text="${category.id != null ? 'Edit Category' : 'Add Category'}">Category Form</h3>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/categories/save}" method="post" th:object="${category}">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">Category Name</label>
+                    <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                    <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a th:href="@{/admin/categories}" class="btn btn-secondary me-md-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!-- src/main/resources/templates/checkout/form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title>Checkout</title>
+    <style id="extracss"></style>
+</head>
+<body>
+<div id="content">
+    <h2>Checkout</h2>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Delivery Information</h4>
+                </div>
+                <div class="card-body">
+                    <p>This is a demo checkout. No actual payment will be processed.</p>
+                    <form method="post" th:action="@{/checkout/place-order}" th:object="${order}">
+                        <div class="form-group mb-3">
+                            <label for="fullName">Full Name*</label>
+                            <input type="text" th:field="*{fullName}" id="fullName" class="form-control" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="email">Email*</label>
+                            <input type="email" th:field="*{email}" id="email" class="form-control" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="address">Address*</label>
+                            <input type="text" th:field="*{address}" id="address" class="form-control" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="postalCode">Postal Code*</label>
+                            <input type="text" th:field="*{postalCode}" id="postalCode" class="form-control" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('postalCode')}" th:errors="*{postalCode}"></div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="city">City*</label>
+                            <input type="text" th:field="*{city}" id="city" class="form-control" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="country">Country*</label>
+                            <input type="text" th:field="*{country}" id="country" class="form-control" required>
+                            <div class="text-danger" th:if="${#fields.hasErrors('country')}" th:errors="*{country}"></div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="phone">Phone</label>
+                            <input type="text" th:field="*{phone}" id="phone" class="form-control">
+                            <div class="text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Order Summary</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group mb-3">
+                        <li th:each="item : ${cart.items}" class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                                <h6 class="my-0" th:text="${item.product.name}">Product name</h6>
+                                <small class="text-muted" th:text="${'Quantity: ' + item.quantity}">Quantity: 1</small>
+                            </div>
+                            <span class="text-muted" th:text="${'$' + (item.product.price * item.quantity)}">$12.00</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Total</span>
+                            <strong th:text="${'$' + cart.totalPrice}">$20.00</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!-- src/main/resources/templates/admin/index.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/dashboard :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title>Admin Dashboard</title>
+    <style id="extracss"></style>
+</head>
+<body>
+<div id="content">
+    <h2 class="mb-4">Dashboard Overview</h2>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Total Products</h6>
+                            <h2 class="mb-0" th:text="${productCount}">0</h2>
+                        </div>
+                        <i class="bi bi-box-seam fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" th:href="@{/admin/products}">View Details</a>
+                    <div class="small text-white"><i class="bi bi-arrow-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Total Categories</h6>
+                            <h2 class="mb-0" th:text="${categoryCount}">0</h2>
+                        </div>
+                        <i class="bi bi-tag fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" th:href="@{/admin/categories}">View Details</a>
+                    <div class="small text-white"><i class="bi bi-arrow-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Total Orders</h6>
+                            <h2 class="mb-0" th:text="${ordersCount}">0</h2>
+                        </div>
+                        <i class="bi bi-cart-check fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" th:href="@{/admin/orders}">View Orders</a>
+                    <div class="small text-white"><i class="bi bi-arrow-right"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Revenue</h6>
+                            <h2 class="mb-0" th:text="${'$' + #numbers.formatDecimal(totalRevenue, 1, 2)}">$0.00</h2>
+                        </div>
+                        <i class="bi bi-currency-dollar fs-1"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" th:href="@{/admin/reports}">View Reports</a>
+                    <div class="small text-white"><i class="bi bi-arrow-right"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-3">
+                            <a th:href="@{/admin/products/add}" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="bi bi-plus-circle mb-2 d-block fs-1"></i>
+                                Add Product
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <a th:href="@{/admin/categories/add}" class="btn btn-outline-success btn-lg w-100">
+                                <i class="bi bi-folder-plus mb-2 d-block fs-1"></i>
+                                Add Category
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <a th:href="@{/admin/orders}" class="btn btn-outline-warning btn-lg w-100">
+                                <i class="bi bi-truck mb-2 d-block fs-1"></i>
+                                Manage Orders
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center mb-3">
+                            <a th:href="@{/admin/reports}" class="btn btn-outline-info btn-lg w-100">
+                                <i class="bi bi-file-earmark-text mb-2 d-block fs-1"></i>
+                                Generate Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products Table -->
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-list-ul me-1"></i>
+                    Recent Products
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="product : ${recentProducts}">
+                                    <td th:text="${product.name}">Product Name</td>
+                                    <td th:text="${product.category.name}">Category</td>
+                                    <td th:text="${'$' + #numbers.formatDecimal(product.price, 1, 2)}">$99.99</td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentProducts)}">
+                                    <td colspan="3" class="text-center">No products available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-cart-check me-1"></i>
+                    Recent Orders
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Customer</th>
+                                    <th>Status</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="order : ${recentOrders}">
+                                    <td th:text="${order.id}">1</td>
+                                    <td th:text="${order.fullName}">John Doe</td>
+                                    <td>
+                                        <span th:if="${order.paid}" class="badge bg-success">Paid</span>
+                                        <span th:unless="${order.paid}" class="badge bg-warning">Pending</span>
+                                    </td>
+                                    <td th:text="${order.total != null ? '$' + #numbers.formatDecimal(order.total, 1, 2) : '$' + #numbers.formatDecimal(order.getTotalPrice(), 1, 2)}">$149.99</td>                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                    <td colspan="4" class="text-center">No orders available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>

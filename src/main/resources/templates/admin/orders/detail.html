@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/dashboard :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title>Order Details - Admin</title>
+    <style id="extracss"></style>
+</head>
+<body>
+<div id="content">
+    <div class="mb-4">
+        <a th:href="@{/admin/orders}" class="btn btn-outline-secondary mb-3">
+            <i class="bi bi-arrow-left"></i> Back to Orders
+        </a>
+        <h2>Order #<span th:text="${order.id}">123</span> Details</h2>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Customer Information</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Name:</strong> <span th:text="${order.fullName}">John Doe</span></p>
+                    <p class="mb-1"><strong>Email:</strong> <span th:text="${order.email}">john@example.com</span></p>
+                    <p class="mb-1"><strong>Phone:</strong> <span th:text="${order.phone ?: 'Not provided'}">+1 123-456-7890</span></p>
+                    <p class="mb-1"><strong>Order Date:</strong> <span th:text="${#temporals.format(order.createdAt, 'MMMM d, yyyy HH:mm')}">March 15, 2023 14:30</span></p>
+                    <p class="mb-0">
+                        <strong>Status:</strong>
+                        <span th:if="${order.paid}" class="badge bg-success">Paid</span>
+                        <span th:unless="${order.paid}" class="badge bg-warning">Pending</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Shipping Address</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1" th:text="${order.fullName}">John Doe</p>
+                    <p class="mb-1" th:text="${order.address}">123 Main St.</p>
+                    <p class="mb-1" th:text="${order.city + ', ' + order.postalCode}">New York, 10001</p>
+                    <p class="mb-0" th:text="${order.country}">United States</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-light">
+            <h6 class="mb-0">Order Items</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${order.orderItems}">
+                        <td>
+                            <a th:href="@{/admin/products/edit/{id}(id=${item.product.id})}" th:text="${item.product.name}">Product Name</a>
+                        </td>
+                        <td th:text="${'$' + #numbers.formatDecimal(item.price, 1, 2)}">$9.99</td>
+                        <td th:text="${item.quantity}">2</td>
+                        <td class="text-end" th:text="${'$' + #numbers.formatDecimal(item.price.multiply(new java.math.BigDecimal(item.quantity)), 1, 2)}">$19.98</td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                        <td class="text-end"><strong th:text="${'$' + #numbers.formatDecimal(order.getTotalPrice, 1, 2)}">$99.99</strong></td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <form th:if="${!order.paid}" th:action="@{/admin/orders/{id}/mark-paid(id=${order.id})}" method="post" class="d-inline">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> Mark as Paid
+            </button>
+        </form>
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>

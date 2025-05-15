@@ -1,0 +1,146 @@
+<!-- src/main/resources/templates/products/detail.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title th:text="${product.name}">Product Detail</title>
+    <style id="extracss">
+        #productMainImage, #productFallbackImage {
+            transition: transform 0.3s ease;
+            max-height: 500px;
+            object-fit: contain;
+        }
+
+        #productMainImage:hover, #productFallbackImage:hover {
+            transform: scale(1.03);
+        }
+
+        .product-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .product-card .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+<div id="content">
+    <div class="container py-5">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Home</a></li>
+                <li class="breadcrumb-item">
+                    <a th:href="@{/product/category/{id}(id=${product.category.id})}" th:text="${product.category.name}">Category</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page"
+                    th:text="${#strings.length(product.name) > 30 ? #strings.substring(product.name, 0, 30) + '...' : product.name}">
+                    Product Name
+                </li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Product Image Section -->
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <img th:if="${product.imageUrl != null}" th:src="${product.imageUrl}" th:alt="${product.name}"
+                         class="img-fluid rounded" id="productMainImage">
+                    <img th:unless="${product.imageUrl != null}" th:src="@{/images/no_image.png}" alt="No image"
+                         class="img-fluid rounded" id="productFallbackImage">
+                </div>
+            </div>
+
+            <!-- Product Details Section -->
+            <div class="col-md-6">
+                <h1 class="display-5 fw-bold mb-3" th:text="${product.name}">Product Name</h1>
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-primary me-2" th:text="${product.category.name}">Category</span>
+                    <small class="text-muted" th:text="${'ID: ' + product.id}">ID: 123</small>
+                </div>
+
+                <div class="mb-4">
+                    <h2 class="text-primary display-6" th:text="${'$' + product.price}">$99.99</h2>
+                    <span th:if="${product.available}" class="badge bg-success">In Stock</span>
+                    <span th:unless="${product.available}" class="badge bg-danger">Out of Stock</span>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="mb-3">Product Description</h4>
+                    <div class="card">
+                        <div class="card-body bg-light">
+                            <p th:text="${product.description}" style="white-space: pre-line;">Description</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form th:action="@{/cart/add}" method="post" class="mb-4">
+                    <input type="hidden" name="productId" th:value="${product.id}">
+                    <div class="row g-3 align-items-center mb-3">
+                        <div class="col-auto">
+                            <label for="quantity" class="col-form-label">Quantity:</label>
+                        </div>
+                        <div class="col-auto">
+                            <select name="quantity" id="quantity" class="form-select">
+                                <option th:each="i : ${#numbers.sequence(1, 5)}" th:value="${i}" th:text="${i}">1</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" th:disabled="${!product.available}">
+                            <i class="bi bi-cart-plus me-2"></i> Add to Cart
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary">
+                            <i class="bi bi-heart me-2"></i> Add to Wishlist
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Related Products Section -->
+        <div class="mt-5" th:if="${!#lists.isEmpty(relatedProducts)}">
+            <h3 class="mb-4">Recommended Products</h3>
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                <div th:each="relatedProduct : ${relatedProducts}" class="col">
+                    <div class="card h-100 product-card">
+                        <a th:href="@{/product/{slug}(slug=${relatedProduct.slug})}">
+                            <img th:if="${relatedProduct.imageUrl != null}" th:src="${relatedProduct.imageUrl}"
+                                 class="card-img-top" th:alt="${relatedProduct.name}">
+                            <img th:unless="${relatedProduct.imageUrl != null}" th:src="@{/images/no_image.png}"
+                                 class="card-img-top" alt="No image">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a th:href="@{/product/{slug}(slug=${relatedProduct.slug})}" class="text-decoration-none text-dark"
+                                   th:text="${#strings.length(relatedProduct.name) > 50 ? #strings.substring(relatedProduct.name, 0, 50) + '...' : relatedProduct.name}">
+                                    Related Product
+                                </a>
+                            </h5>
+                            <p class="fw-bold text-primary" th:text="${'$' + relatedProduct.price}">$99.99</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-5" th:if="${#lists.isEmpty(relatedProducts)}">
+            <h3 class="mb-4">Recommended Products</h3>
+            <p class="text-muted">No recommended products found</p>
+        </div>
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>

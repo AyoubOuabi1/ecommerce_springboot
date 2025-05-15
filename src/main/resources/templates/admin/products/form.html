@@ -1,0 +1,110 @@
+<!-- src/main/resources/templates/admin/products/form.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/dashboard :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title th:text="${product.id != null ? 'Edit Product' : 'Add Product'}">Product Form</title>
+    <style id="extracss"></style>
+</head>
+<body>
+<div id="content">
+    <div class="card">
+        <div class="card-header">
+            <h3 th:text="${product.id != null ? 'Edit Product' : 'Add Product'}">Product Form</h3>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/admin/products/save}" method="post" enctype="multipart/form-data" th:object="${product}">
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                        <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="slug" class="form-label">Slug</label>
+                        <input type="text" class="form-control" id="slug" th:field="*{slug}"
+                               placeholder="product-url-slug">
+                        <div class="text-danger" th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}"></div>
+                        <small class="text-muted">Will be auto-generated if left empty</small>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" th:field="*{category.id}" required>
+                            <option value="">Select a category</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                        </select>
+                        <div class="text-danger" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="price" class="form-label">Price</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="price" th:field="*{price}"
+                                   step="0.01" min="0" required>
+                        </div>
+                        <div class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="4"></textarea>
+                    <div class="text-danger" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="imageFile" class="form-label">Product Image</label>
+                        <input type="file" class="form-control" id="imageFile" name="imageFile" accept="image/*">
+                        <small class="text-muted">Leave empty to keep the current image</small>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" type="checkbox" id="available" th:field="*{available}">
+                            <label class="form-check-label" for="available">Available for purchase</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Show current image if available -->
+                <div class="mb-3" th:if="${product.imageUrl != null}">
+                    <label class="form-label">Current Image</label>
+                    <div>
+                        <img th:src="${product.imageUrl}" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a th:href="@{/admin/products}" class="btn btn-secondary me-md-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script id="extrajs">
+    // Auto-generate slug from product name
+    document.getElementById('name').addEventListener('input', function() {
+        const slugField = document.getElementById('slug');
+        if (slugField.value === '') {
+            const name = this.value;
+            const slug = name.toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+            slugField.value = slug;
+        }
+    });
+</script>
+</body>
+</html>

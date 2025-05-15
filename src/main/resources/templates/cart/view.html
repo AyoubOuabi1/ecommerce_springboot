@@ -1,0 +1,70 @@
+<!-- src/main/resources/templates/cart/view.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title>Your Shopping Cart</title>
+    <style id="extracss"></style>
+</head>
+<body>
+<div id="content">
+    <h2>Your Shopping Cart</h2>
+
+    <div th:if="${!cart.items.isEmpty()}">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${cart.items}">
+                <td>
+                    <a th:href="@{/templates/product/{slug}(slug=${item.product.slug})}" th:text="${item.product.name}">Product name</a>
+                </td>
+                <td>
+                    <form th:action="@{/cart/update}" method="post" class="d-flex">
+                        <input type="hidden" name="itemId" th:value="${item.id}">
+                        <input type="number" name="quantity" th:value="${item.quantity}" min="1" class="form-control form-control-sm" style="width: 60px">
+                        <button type="submit" class="btn btn-sm btn-outline-primary ms-2">Update</button>
+                    </form>
+                </td>
+                <td th:text="${'$' + item.product.price}">$99.99</td>
+                <td th:text="${'$' + (item.product.price * item.quantity)}">$99.99</td>
+                <td>
+                    <form th:action="@{/cart/update}" method="post">
+                        <input type="hidden" name="itemId" th:value="${item.id}">
+                        <input type="hidden" name="quantity" value="0">
+                        <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" class="text-end fw-bold">Total:</td>
+                <td th:text="${'$' + cart.totalPrice}">$99.99</td>
+                <td></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a th:href="@{/}" class="btn btn-outline-primary">Continue Shopping</a>
+            <a th:href="@{/checkout}" class="btn btn-success">Checkout</a>
+        </div>
+    </div>
+    <div th:if="${cart.items.isEmpty()}" class="alert alert-info">
+        Your cart is empty. <a th:href="@{/}">Continue shopping</a>.
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!-- src/main/resources/templates/orders/confirmation.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(
+          ~{::title},
+          ~{::#content},
+          ~{::#extracss},
+          ~{::#extrajs}
+      )}">
+<head>
+    <title>Order Confirmation</title>
+    <style id="extracss"></style>
+</head>
+<body>
+<div id="content">
+    <div class="container py-5">
+        <div class="card">
+            <div class="card-body text-center">
+                <h2 class="mb-4">Thank You for Your Order!</h2>
+                <p class="lead mb-4">Your order has been placed successfully.</p>
+                <p th:text="${'Order #' + order.id}">Order #123</p>
+                <p>We'll send a confirmation email to <strong th:text="${order.email}">email@example.com</strong></p>
+                <a th:href="@{/}" class="btn btn-primary mt-3">Continue Shopping</a>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Order Items</h4>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li th:each="item : ${order.getOrderItems()}" class="list-group-item d-flex justify-content-between align-items-center">
+                    <span th:text="${item.product.name}">Product name</span>
+                    <div>
+                        <span class="badge bg-primary rounded-pill" th:text="${item.quantity}">1</span>
+                        <span class="ms-2" th:text="${'$' + item.price * item.quantity}">$12.00</span>
+                    </div>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Total</strong>
+                    <strong th:text="${'$' + order.totalPrice}">$99.99</strong>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Shipping Details</h4>
+            </div>
+            <div class="card-body">
+                <p th:text="${order.fullName}">John Doe</p>
+                <p th:text="${order.address}">123 Main St</p>
+                <p th:text="${order.postalCode + ' ' + order.city}">12345 City</p>
+                <p th:text="${order.country}">Country</p>
+                <p th:if="${order.phone}" th:text="${'Phone: ' + order.phone}">Phone: 123-456-7890</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script id="extrajs"></script>
+</body>
+</html>
